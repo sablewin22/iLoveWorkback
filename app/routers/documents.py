@@ -18,6 +18,8 @@ import re
 MODE_ALIASES = {
     "curriculo": "resume_analysis",
     "currículo": "resume_analysis",
+    "analise o currículo": "resume_analysis",
+    "analyze o currículo": "resume_analysis",
     "resume_analysis": "resume_analysis",
     "contrato": "contract_analysis",
     "contract_analysis": "contract_analysis",
