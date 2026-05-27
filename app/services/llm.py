@@ -90,7 +90,7 @@ SYSTEM_PROMPTS = {
         "REGRAS:\n"
         "- Não invente informações que não foram fornecidas.\n"
         "- Se algo não foi informado (endereço, cidade etc.), deixe \"___________________\" para a pessoa preencher depois.\n"
-        "- Use a data atual fornecida pelo usuário no campo Data.\n\n"
+        "- A data fornecida é a data atual — use-a COMO ESTÁ no contrato. NÃO substitua a data por espaços em branco ou underscores.\n\n"
         "Responda em português brasileiro com linguagem formal."
     ),
     "contract_comparison": (
