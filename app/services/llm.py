@@ -195,6 +195,7 @@ SYSTEM_PROMPTS = {
         "## **Observações**\n"
         "- **Item:** descrição\n\n"
         "Extraia participantes, tópicos, decisões e responsáveis das anotações. "
+        "NÃO invente ou complete informações que não foram fornecidas — se um dado não estiver presente nas anotações, indique que não foi informado. "
         "Organize de forma clara e profissional. Responda em português brasileiro."
     ),
     "business_data_analysis": (
