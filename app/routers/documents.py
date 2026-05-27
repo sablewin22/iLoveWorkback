@@ -29,6 +29,16 @@ MODE_ALIASES = {
     "guideline_interpretation": "guideline_interpretation",
     "gerar_email": "email_generation",
     "email_generation": "email_generation",
+    "rescisao": "severance_simulator",
+    "severance_simulator": "severance_simulator",
+    "tradutor": "legal_translator",
+    "legal_translator": "legal_translator",
+    "ata": "meeting_minutes",
+    "meeting_minutes": "meeting_minutes",
+    "dados empresariais": "business_data_analysis",
+    "business_data_analysis": "business_data_analysis",
+    "politica interna": "internal_policy_creator",
+    "internal_policy_creator": "internal_policy_creator",
 }
 
 
@@ -244,6 +254,11 @@ MODOS = {
     "contract_comparison": "Comparação de Contratos",
     "guideline_interpretation": "Interpretação de Diretrizes",
     "email_generation": "Geração de E-mail Profissional",
+    "severance_simulator": "Simulador de Rescisão Trabalhista",
+    "legal_translator": "Tradutor Jurídico",
+    "meeting_minutes": "Gerador de Ata de Reunião",
+    "business_data_analysis": "Analisador de Dados Empresariais",
+    "internal_policy_creator": "Criador de Política Interna",
 }
 
 
