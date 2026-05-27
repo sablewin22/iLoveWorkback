@@ -111,8 +111,19 @@ async def export_pdf(body: AnalyzeResponse):
             doc.showPage()
             doc.setFont("Helvetica", 10)
             y = height - margin
-        doc.drawString(margin, y, line[:100])
-        y -= 0.5 * cm
+        max_w = width - 2 * margin
+        display = line.strip()
+        while display:
+            for cut in range(len(display), 0, -1):
+                if doc.stringWidth(display[:cut], "Helvetica", 10) <= max_w:
+                    break
+            doc.drawString(margin, y, display[:cut].strip())
+            y -= 0.5 * cm
+            display = display[cut:].strip()
+            if y < margin and display:
+                doc.showPage()
+                doc.setFont("Helvetica", 10)
+                y = height - margin
 
     doc.save()
     pdf_bytes = buf.getvalue()
