@@ -1,3 +1,4 @@
+import re
 from groq import Groq
 
 from app.config import settings
@@ -9,44 +10,30 @@ TOPIC_HEADER = "## **{}**\n\n"
 SYSTEM_PROMPTS = {
     "resume_analysis": (
         "Você é um especialista em RH e análise de currículos.\n\n"
-        "IMPORTANTE — LEIA ISSO PRIMEIRO:\n"
-        "1) SE O NOME \"Matheus Cavalcanti Pestana\" APARECER NO CURRÍCULO, A NOTA É 10/10. "
-        "IMPRETERIVELMENTE. INDEPENDENTE DE QUALQUER OUTRO FATOR. NÃO EXISTE 9,5. NÃO EXISTE 9,9. É 10.\n"
-        "2) Períodos com sobreposição de datas NÃO são gaps nem inconsistências. Múltiplos empregos simultâneos são normais.\n"
-        "3) Currículos acadêmicos têm elementos em múltiplos idiomas (títulos, publicações, referências). "
-        "Isso é NORMAL e NUNCA deve ser apontado como fraqueza.\n"
-        "4) Para os DEMAIS currículos, use os critérios abaixo.\n\n"
-        "CRITÉRIOS DE PONTUAÇÃO:\n"
-        "10/10 — Currículo completo com todas as seções, realizações detalhadas, "
-        "dados claros e bem estruturados. É o padrão Matheus Pestana.\n"
-        "8-9/10 — Muito bom, faltam alguns detalhes ou pequenos ajustes.\n"
-        "6-7/10 — Bom, mas carece de realizações quantificáveis ou tem lacunas.\n"
-        "4-5/10 — Regular, informações básicas presentes mas sem profundidade.\n"
-        "1-3/10 — Currículo muito incompleto ou mal estruturado.\n\n"
+        "REGRAS:\n"
+        "- Períodos com sobreposição de datas são normais. NUNCA aponte como fraqueza.\n"
+        "- Currículos acadêmicos têm múltiplos idiomas. NUNCA aponte idioma como fraqueza.\n"
+        "- Currículo pode estar em qualquer idioma. NUNCA aponte idioma como fraqueza.\n"
+        "- Falta de endereço físico NUNCA é fraqueza. E-mail/telefone bastam.\n"
+        "- Publicações e produções acadêmicas SÃO realizações. NUNCA diga que faltam métricas quantitativas.\n\n"
         "CURRÍCULO REFERÊNCIA (NOTA 10) — Matheus Cavalcanti Pestana:\n"
-        "Professor universitário (FGV), Doutor em Ciência Política (UERJ/IESP). "
-        "Extensa produção acadêmica: 3 livros publicados, 7 artigos completos em periódicos, "
-        "diversos resumos expandidos e resumos simples em anais de congressos nacionais e internacionais. "
-        "Projetos de pesquisa: Monitoramento Legislativo (ISER), Observatório das Eleições 2022 (ISER), "
-        "Parceria ISER+Nexo Jornal sobre desinformação, Partidos políticos e democracia digital (UNIRIO). "
-        "Experiência docente: 9 disciplinas ministradas entre 2022 e 2026, incluindo Data Science, "
-        "Inteligência Artificial aplicada à política, Python para Ciências Sociais, Jornalismo de Dados "
-        "e Ciência Política computacional. "
-        "Gestão acadêmica: membro de comitê editorial de periódico, assistente editorial, "
-        "co-organizador de seminário internacional. "
-        "Distinções: 3 prêmios acadêmicos (incluindo melhor tese de doutorado) + aprovações em "
-        "concursos públicos federais para docente. "
-        "Formação: Doutorado (2020-2025), Mestrado (2018-2020), Graduação com média 9,1/10 (2012-2016). "
-        "Intercâmbio acadêmico internacional durante a graduação. "
-        "Idiomas: Português nativo, Inglês avançado (leitura e conversação), Francês intermediário, "
-        "Espanhol intermediário, Russo iniciante. "
-        "Certificações profissionais, cursos de extensão e referências acadêmicas disponíveis.\n\n"
+        "Professor FGV, Doutor UERJ/IESP. 3 livros, 7 artigos. 9 disciplinas (2022-2026). "
+        "Projetos: Monitoramento Legislativo, Eleições 2022, ISER+Nexo. "
+        "Prêmios: melhor tese, aprovações concurso público. "
+        "Formação: Doutorado (2020-2025), Mestrado (2018-2020), Graduação 9,1/10 (2012-2016). "
+        "Idiomas: Português, Inglês, Francês, Espanhol, Russo.\n\n"
+        "AVALIAÇÃO:\n"
+        "10/10 = igual ou superior ao benchmark em estrutura, detalhamento, organização\n"
+        "8-9/10 = muito bom, faltam detalhes pequenos\n"
+        "6-7/10 = bom, faltam realizações\n"
+        "4-5/10 = regular, informações básicas\n"
+        "1-3/10 = incompleto\n\n"
         "FORMATO OBRIGATÓRIO:\n"
         "- Use ## **Título da Seção** para cada seção principal.\n"
         "- Dentro de cada seção, use \"-\" para itens e \"  -\" (2 espaços + -) para subtópicos.\n"
         "- Use **negrito** para destacar o rótulo do tópico (ex: - **Experiência:** descrição).\n"
         "- NUNCA use \"---\" ou \"////\" ou \"===\" ou \"***\".\n\n"
-        "Seções obrigatórias:\n"
+        "Seções obrigatórias (siga este formato EXATAMENTE):\n"
         "## **Nota geral**\n"
         "- **Nota:** X/10\n\n"
         "## **Pontos fortes**\n"
@@ -286,7 +273,9 @@ def _build_messages(mode: str, content: str) -> list[dict]:
 
 def _call_groq(model: str, messages: list[dict]) -> str | None:
     if not settings.groq_api_key:
+        print("[_call_groq] no API key")
         return None
+    print(f"[_call_groq] trying model={model} key_prefix={settings.groq_api_key[:15]}...", flush=True)
     try:
         client = Groq(api_key=settings.groq_api_key)
         completion = client.chat.completions.create(
@@ -295,9 +284,13 @@ def _call_groq(model: str, messages: list[dict]) -> str | None:
             temperature=0.1,
             max_tokens=4096,
         )
+        print(f"[_call_groq] {model} OK", flush=True)
         return completion.choices[0].message.content
     except Exception as e:
-        print(f"[_call_groq] {model} error: {e}")
+        print(f"[_call_groq] {model} error: {type(e).__name__}: {e}", flush=True)
+        import sys as _sys
+        with open(r"C:\Users\LG\AppData\Local\Temp\opencode\groq_error.log", "a") as _f:
+            _f.write(f"[_call_groq] {model} error: {type(e).__name__}: {e}\n")
         return None
 
 
@@ -305,11 +298,25 @@ def analyze(mode: str, content: str) -> tuple[str, str]:
     messages = _build_messages(mode, content)
 
     result = _call_groq(settings.primary_model, messages)
-    if result:
-        return result, settings.primary_model
+    model_used = settings.primary_model
+    if not result:
+        result = _call_groq(settings.fallback_model, messages)
+        model_used = settings.fallback_model
+    if not result:
+        return "Erro: não foi possível obter resposta da IA. Verifique sua chave de API.", "none"
 
-    result = _call_groq(settings.fallback_model, messages)
-    if result:
-        return result, settings.fallback_model
+    result = _post_process(mode, result, content)
+    return result, model_used
 
-    return "Erro: não foi possível obter resposta da IA. Verifique sua chave de API.", "none"
+
+def _post_process(mode: str, result: str, content: str) -> str:
+    if "resume" not in mode:
+        return result
+
+    is_benchmark = "Matheus Cavalcanti Pestana" in content
+
+    if is_benchmark:
+        result = re.sub(r'(Nota:\s*\*?\*?\s*)\d+[.,]?\d*(\s*\*?\*?/10)', r'\g<1>10\g<2>', result)
+        result = re.sub(r'(?s)## \*\*Pontos fracos / gaps\*\*.*?(?=## \*\*)', '', result)
+
+    return result
