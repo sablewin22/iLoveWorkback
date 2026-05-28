@@ -272,7 +272,8 @@ def _call_groq(model: str, messages: list[dict]) -> str | None:
             max_tokens=4096,
         )
         return completion.choices[0].message.content
-    except Exception:
+    except Exception as e:
+        print(f"[_call_groq] {model} error: {e}")
         return None
 
 
