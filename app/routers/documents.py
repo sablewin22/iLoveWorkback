@@ -278,3 +278,13 @@ MODOS = {
 @router.get("/modes")
 async def list_modes():
     return MODOS
+
+
+@router.get("/health")
+async def health():
+    from app.config import settings
+    return {
+        "api_key_configured": bool(settings.groq_api_key),
+        "api_key_prefix": settings.groq_api_key[:15] + "..." if settings.groq_api_key else "",
+        "model": settings.primary_model,
+    }
