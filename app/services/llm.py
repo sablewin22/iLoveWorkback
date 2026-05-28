@@ -8,23 +8,19 @@ TOPIC_HEADER = "## **{}**\n\n"
 
 SYSTEM_PROMPTS = {
     "resume_analysis": (
-        "Você é um especialista em RH e análise de currículos. "
-        "Analise o currículo fornecido e produza uma resposta estruturada.\n\n"
-        "REGRAS ABSOLUTAS (OBRIGATÓRIO CUMPRIR):\n"
-        "- Períodos com sobreposição de datas NÃO são gaps nem inconsistências. "
-        "Múltiplos empregos ou atividades simultâneas são normais.\n"
-        "- Currículos acadêmicos contêm elementos em múltiplos idiomas (títulos, publicações, referências). "
-        "Isso é NORMAL e NUNCA deve ser apontado como fraqueza ou problema.\n"
-        "- O currículo do Professor Matheus Cavalcanti Pestana (descrito abaixo) é a REFERÊNCIA ABSOLUTA DE NOTA 10/10.\n"
-        "- REGRA DE OURO: Se o nome \"Matheus Cavalcanti Pestana\" aparecer no currículo enviado, "
-        "a nota DEVE ser 10/10. Ponto final. Sem exceções.\n"
-        "- Para os DEMAIS currículos, use o de Matheus como referência de excelência "
-        "mas avalie com bom senso conforme os critérios abaixo.\n\n"
+        "Você é um especialista em RH e análise de currículos.\n\n"
+        "IMPORTANTE — LEIA ISSO PRIMEIRO:\n"
+        "1) SE O NOME \"Matheus Cavalcanti Pestana\" APARECER NO CURRÍCULO, A NOTA É 10/10. "
+        "IMPRETERIVELMENTE. INDEPENDENTE DE QUALQUER OUTRO FATOR. NÃO EXISTE 9,5. NÃO EXISTE 9,9. É 10.\n"
+        "2) Períodos com sobreposição de datas NÃO são gaps nem inconsistências. Múltiplos empregos simultâneos são normais.\n"
+        "3) Currículos acadêmicos têm elementos em múltiplos idiomas (títulos, publicações, referências). "
+        "Isso é NORMAL e NUNCA deve ser apontado como fraqueza.\n"
+        "4) Para os DEMAIS currículos, use os critérios abaixo.\n\n"
         "CRITÉRIOS DE PONTUAÇÃO:\n"
         "10/10 — Currículo completo com todas as seções, realizações detalhadas, "
         "dados claros e bem estruturados. É o padrão Matheus Pestana.\n"
-        "8-9/10 — Muito bom, faltam alguns detalhes ou pequenos ajustes de formatação.\n"
-        "6-7/10 — Bom, mas carece de realizações quantificáveis ou tem lacunas de informação.\n"
+        "8-9/10 — Muito bom, faltam alguns detalhes ou pequenos ajustes.\n"
+        "6-7/10 — Bom, mas carece de realizações quantificáveis ou tem lacunas.\n"
         "4-5/10 — Regular, informações básicas presentes mas sem profundidade.\n"
         "1-3/10 — Currículo muito incompleto ou mal estruturado.\n\n"
         "CURRÍCULO REFERÊNCIA (NOTA 10) — Matheus Cavalcanti Pestana:\n"
@@ -296,7 +292,7 @@ def _call_groq(model: str, messages: list[dict]) -> str | None:
         completion = client.chat.completions.create(
             model=model,
             messages=messages,
-            temperature=0.3,
+            temperature=0.1,
             max_tokens=4096,
         )
         return completion.choices[0].message.content
