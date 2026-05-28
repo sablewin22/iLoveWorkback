@@ -149,6 +149,11 @@ def _call_groq(model: str, messages: list[dict]) -> str | None:
 def analyze(mode: str, content: str) -> tuple[str, str]:
     messages = _build_messages(mode, content)
 
+    import sys as _sys
+    with open(r"C:\Users\LG\AppData\Local\Temp\opencode\debug_llm.log", "a") as f:
+        f.write(f"pid={_sys.executable} primary={settings.primary_model} fallback={settings.fallback_model}\n")
+    print(f"[analyze] pid={_sys.executable} primary={settings.primary_model} fallback={settings.fallback_model}", flush=True)
+
     result = _call_groq(settings.primary_model, messages)
     if result:
         return result, settings.primary_model
